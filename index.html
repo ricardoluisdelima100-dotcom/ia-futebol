@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IA Futebol</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  color: #22c55e;
+}
+
+input {
+  width: 90%;
+  padding: 12px;
+  margin: 8px;
+  border-radius: 10px;
+  border: none;
+}
+
+button {
+  width: 95%;
+  padding: 15px;
+  margin: 10px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.btn-analisar {
+  background: #22c55e;
+  color: black;
+}
+
+.btn-enviar {
+  background: #3b82f6;
+  color: white;
+}
+
+.resultado {
+  margin-top: 20px;
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🔥 IA Futebol</h1>
+
+<input id="casa" placeholder="Time da casa">
+<input id="fora" placeholder="Time visitante">
+
+<button class="btn-analisar" onclick="analisar()">📊 Analisar</button>
+<button class="btn-enviar" onclick="enviar()">📤 Enviar Telegram</button>
+
+<div id="resultado" class="resultado"></div>
+
+<script>
+let dados = "";
+
+function analisar(){
+
+  const casa = document.getElementById("casa").value;
+  const fora = document.getElementById("fora").value;
+
+  const forcaCasa = casa.length % 5 + 1;
+  const forcaFora = fora.length % 5 + 1;
+
+  let texto = `🔥 ENTRADA\n\n⚽ ${casa} vs ${fora}\n\n`;
+
+  if(forcaCasa + forcaFora >= 6)
+    texto += "💣 Over 2.5 gols\n";
+
+  if(forcaCasa >= 3 && forcaFora >= 3)
+    texto += "🤝 Ambas marcam\n";
+
+  if(forcaCasa > forcaFora)
+    texto += "🏆 Vitória " + casa + "\n";
+  else if(forcaFora > forcaCasa)
+    texto += "🏆 Vitória " + fora + "\n";
+
+  dados = texto;
+
+  document.getElementById("resultado").innerText = texto;
+}
+
+async function enviar(){
+
+  if(!dados){
+    alert("Analise primeiro!");
+    return;
+  }
+
+  await fetch("/enviar", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ mensagem: dados })
+  });
+
+  alert("Enviado pro Telegram!");
+}
+</script>
+
+</body>
+</html>
