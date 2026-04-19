@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const app = express(); // 🔥 ESSA LINHA É OBRIGATÓRIA
+const app = express();
 app.use(express.json());
 
 const TOKEN = process.env.TOKEN;
@@ -40,6 +40,27 @@ async function enviar(msg){
 }
 
 // =======================
+// 📱 MANIFEST (APP)
+// =======================
+app.get("/manifest.json", (req,res)=>{
+  res.json({
+    name: "IA Futebol",
+    short_name: "IA Futebol",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#0f172a",
+    theme_color: "#22c55e",
+    icons: [
+      {
+        src: "https://cdn-icons-png.flaticon.com/512/53/53283.png",
+        sizes: "192x192",
+        type: "image/png"
+      }
+    ]
+  });
+});
+
+// =======================
 // 🌐 SITE PROFISSIONAL
 // =======================
 app.get("/", (req,res)=>{
@@ -50,6 +71,8 @@ app.get("/", (req,res)=>{
     <meta charset="UTF-8">
     <title>IA Futebol</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="manifest" href="/manifest.json">
 
     <style>
       body {
@@ -139,11 +162,8 @@ app.get("/", (req,res)=>{
 // =======================
 app.post("/enviar", async (req,res)=>{
   const { casa, fora } = req.body;
-
   const msg = analisar(casa, fora);
-
   await enviar(msg);
-
   res.send("ok");
 });
 
