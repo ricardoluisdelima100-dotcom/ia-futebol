@@ -1,3 +1,47 @@
+import express from "express";
+import fetch from "node-fetch";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const app = express(); // 🔥 ESSA LINHA É OBRIGATÓRIA
+app.use(express.json());
+
+const TOKEN = process.env.TOKEN;
+const CHAT_ID = process.env.CHAT_ID;
+
+// =======================
+// 📊 ANALISE
+// =======================
+function analisar(casa, fora){
+  return `🔥 ENTRADA
+
+⚽ ${casa} vs ${fora}
+
+💣 Over 2.5 gols
+🤝 Ambas marcam
+🚩 +8 escanteios
+🟨 +3 cartões
+🏆 Possível vencedor: ${casa}`;
+}
+
+// =======================
+// 📤 TELEGRAM
+// =======================
+async function enviar(msg){
+  await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      chat_id: CHAT_ID,
+      text: msg
+    })
+  });
+}
+
+// =======================
+// 🌐 SITE PROFISSIONAL
+// =======================
 app.get("/", (req,res)=>{
   res.send(`
   <!DOCTYPE html>
@@ -75,7 +119,7 @@ app.get("/", (req,res)=>{
 
         document.getElementById("res").innerHTML = "⏳ Enviando...";
 
-        const r = await fetch("/enviar", {
+        await fetch("/enviar", {
           method:"POST",
           headers:{ "Content-Type":"application/json" },
           body: JSON.stringify({ casa, fora })
@@ -88,4 +132,26 @@ app.get("/", (req,res)=>{
   </body>
   </html>
   `);
+});
+
+// =======================
+// 🔥 API
+// =======================
+app.post("/enviar", async (req,res)=>{
+  const { casa, fora } = req.body;
+
+  const msg = analisar(casa, fora);
+
+  await enviar(msg);
+
+  res.send("ok");
+});
+
+// =======================
+// 🚀 START
+// =======================
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, ()=>{
+  console.log("Rodando na porta", PORT);
 });
